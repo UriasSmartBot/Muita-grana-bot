@@ -1,1 +1,24 @@
-
+services:
+  - type: worker
+    name: muita-grana-bot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    autoDeploy: true
+    envVars:
+      - key: TELEGRAM_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: OTCHARTS_API_KEY
+        sync: false
+      - key: DISPLAY_TZ
+        value: America/Sao_Paulo
+      - key: MIN_SCORE
+        value: "70"
+      - key: DB_PATH
+        value: /data/signals.sqlite3
+    disk:
+      name: muita-grana-data
+      mountPath: /data
+      sizeGB: 1
