@@ -1,1 +1,58 @@
+import os
+import logging
+import httpx
 
+BASE_URL = "https://otcharts.com"
+API_KEY = os.getenv("OTCHARTS_API_KEY")
+
+HEADERS = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Accept": "application/json",
+}
+
+
+def buscar_simbolos():
+    """Busca os ativos disponíveis na Quotex."""
+    if not API_KEY:
+        raise RuntimeError("Configure OTCHARTS_API_KEY no Render.")
+
+    response = httpx.get(
+        f"{BASE_URL}/v1/symbols",
+        params={"venue": "quotex"},
+        headers=HEADERS,
+        timeout=30,
+    )
+    response.raise_for_status()
+
+    data = response.json()
+
+    if isinstance(data, dict):
+        return data.get("symbols", [])
+
+    return data
+
+
+def buscar_velas(symbol, limite=100):
+    """Busca velas de 1 minuto para um ativo da Quotex."""
+    if not API_KEY:
+        raise RuntimeError("Configure OTCHARTS_API_KEY no Render.")
+
+    response = httpx.get(
+        f"{BASE_URL}/v1/candles",
+        params={
+            "venue": "quotex",
+            "symbol": symbol,
+            "tf": 60,
+            "limit": limite,
+        },
+        headers=HEADERS,
+        timeout=30,
+    )
+    response.raise_for_status()
+
+    data = response.json()
+
+    if isinstance(data, dict):
+        return data.get("candles", [])
+
+    return data
